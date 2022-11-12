@@ -1,19 +1,42 @@
-import React from 'react'
+import React, { useContext, useEffect, useState } from 'react'
 import Edit from '../img/edit.png'
 import Delete from '../img/delete.png'
-import {Link} from 'react-router-dom'
+import {Link, useLocation} from 'react-router-dom'
 import Menu from '../components/Menu'
+import moment from "moment"
+import axios from 'axios'
+import { AuthContext } from "../context/authContext";
 
 const Single = () => {
+  const [post, setPosts] =useState([]);
+
+  const location = useLocation();
+
+  const postId = location.pathname.split("/")[2]
+
+  const { currentUser } = useContext(AuthContext);
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const res = await axios.get(`/posts/${postId}`);
+        setPosts(res.data);
+      } catch(err) {
+        console.log(err);
+      }
+    };
+    fetchData();
+  }, [postId]);
+
   return (
     <div className="single">
       <div className="content">
-        <img src="https://interesnyefakty.org/wp-content/uploads/Interesnye-fakty-pro-osen.jpg" alt="" />
+        <img src={post?.img} alt="" />
         <div className="user">
           <img src="https://img.freepik.com/premium-photo/autumn-nature-people-concept-young-woman-in-a-blue-coat-standing-in-the-park-on-a-background-of_230311-15826.jpg" alt="" />
           <div className="info">
-            <span>John</span>
-            <p>Posted 2 days ago</p>
+            <span>{post.username}</span>
+            <p>Posted {moment(post.date).fromNow()}</p>
           </div>
           <div className="edit">
             <Link to={`/write?edit=2`}>
